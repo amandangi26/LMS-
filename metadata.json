@@ -1,0 +1,8 @@
+
+{
+  "name": "Vidya Library LMS",
+  "description": "Premium management system for Vidya Library, Mohanpur Bazar. Features AI-powered student concierge, automated fee management, and cloud resource tracking.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
