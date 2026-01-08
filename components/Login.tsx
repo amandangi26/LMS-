@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Member } from '../types';
 
 interface LoginProps {
@@ -22,13 +21,26 @@ const Login: React.FC<LoginProps> = ({ onLogin, members }) => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
+  // Stabilized Thematic System (Branding consistency)
+  const portalArt = useMemo(() => {
+    const subjects = [
+      { id: 'TIME', title: 'CHRONOS' },
+      { id: 'STUDY', title: 'ARCHIVE' },
+      { id: 'GROWTH', title: 'NEXUS' },
+      { id: 'SECURITY', title: 'VAULT' }
+    ];
+    return subjects[Math.floor(Math.random() * subjects.length)];
+  }, []);
+
+  const BRAND_COLOR = "#84cc16"; // Unified Vidya Green
+
   const handleStudentLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    const student = members.find(m => 
-      m.id.toLowerCase() === uuid.trim().toLowerCase() && 
+    const student = members.find(m =>
+      m.id.toLowerCase() === uuid.trim().toLowerCase() &&
       (m.password === password || (!m.password && password === 'vidya123'))
     );
-    
+
     if (student) {
       onLogin('student', student);
     } else {
@@ -41,8 +53,6 @@ const Login: React.FC<LoginProps> = ({ onLogin, members }) => {
     if (adminId === ADMIN_CONFIG.id && adminPass === ADMIN_CONFIG.password) {
       setError('');
       setIsLoading(true);
-      
-      // Simulate slight authentication delay for security feel
       setTimeout(() => {
         setIsLoading(false);
         onLogin('admin');
@@ -53,125 +63,187 @@ const Login: React.FC<LoginProps> = ({ onLogin, members }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900 flex items-center justify-center p-6">
-      <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 bg-white dark:bg-slate-800 rounded-[3rem] shadow-4xl overflow-hidden border border-slate-100 dark:border-slate-700">
-        <div className="p-12 bg-slate-900 text-white flex flex-col justify-between relative overflow-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-slate-950 flex items-center justify-center p-6 relative overflow-hidden transition-colors duration-700">
+      <style>{`
+        @keyframes spin-slow { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+        @keyframes float-gentle { 0%, 100% { transform: translateY(0) scale(1); } 50% { transform: translateY(-20px) scale(1.05); } }
+        @keyframes pulse-ring { 0% { transform: scale(0.8); opacity: 0.5; } 100% { transform: scale(1.2); opacity: 0; } }
+        @keyframes line-draw { 0% { height: 0; opacity: 0; } 100% { height: 100%; opacity: 0.2; } }
+        .animate-spin-slow { animation: spin-slow 30s linear infinite; }
+        .animate-float-gentle { animation: float-gentle 6s ease-in-out infinite; }
+        .animate-pulse-ring { animation: pulse-ring 3s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+        .animate-grow { animation: line-draw 1.5s ease-out forwards; }
+      `}</style>
+
+      <div className="max-w-4xl w-full grid grid-cols-1 md:grid-cols-2 bg-white dark:bg-slate-900 rounded-[3rem] shadow-[0_50px_100px_-20px_rgba(0,0,0,0.15)] overflow-hidden border border-slate-100 dark:border-slate-800 relative z-10 transition-all duration-500">
+        {/* Left Side: Thematic Illustration */}
+        <div className="p-12 bg-slate-950 text-white flex flex-col justify-between relative overflow-hidden group">
+          <div className="absolute inset-0 opacity-20 pointer-events-none flex items-center justify-center">
+            {portalArt.id === 'TIME' && (
+              <div className="relative w-80 h-80 flex items-center justify-center">
+                <div className="absolute inset-0 border-[1px] border-white/10 rounded-full animate-spin-slow"></div>
+                <div className="absolute inset-10 border-[1px] border-dashed border-white/10 rounded-full"></div>
+                <div className="w-1 h-32 bg-gradient-to-t from-[#84cc16] to-transparent rounded-full origin-bottom rotate-[45deg] animate-pulse"></div>
+                <div className="w-1 h-24 bg-gradient-to-t from-white/40 to-transparent rounded-full origin-bottom rotate-[-30deg]"></div>
+                <div className="absolute w-4 h-4 bg-[#84cc16] rounded-full blur-[4px] animate-pulse"></div>
+              </div>
+            )}
+            {portalArt.id === 'STUDY' && (
+              <div className="relative w-80 h-80 flex items-center justify-center animate-float-gentle">
+                <svg className="w-48 h-48 opacity-40 text-[#84cc16]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="0.5">
+                  <path d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+                </svg>
+                <div className="absolute inset-0 border-2 border-[#84cc16]/5 rounded-3xl rotate-12"></div>
+                <div className="absolute inset-0 border-2 border-[#84cc16]/5 rounded-3xl -rotate-6"></div>
+              </div>
+            )}
+            {portalArt.id === 'SECURITY' && (
+              <div className="relative w-72 h-72 flex items-center justify-center">
+                <div className="absolute inset-0 border-2 border-[#84cc16]/20 rounded-full animate-pulse-ring"></div>
+                <div className="absolute inset-8 border-2 border-[#84cc16]/10 rounded-full animate-pulse-ring" style={{ animationDelay: '1s' }}></div>
+                <svg className="w-32 h-32 text-[#84cc16]/30" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1">
+                  <path d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                </svg>
+              </div>
+            )}
+            {portalArt.id === 'GROWTH' && (
+              <div className="flex items-end space-x-6 h-64">
+                {[40, 70, 50, 90, 60, 80].map((h, i) => (
+                  <div key={i} className="w-4 bg-[#84cc16]/20 rounded-t-lg animate-grow" style={{ height: `${h}%`, animationDelay: `${i * 0.1}s` }}></div>
+                ))}
+              </div>
+            )}
+          </div>
+
           <div className="relative z-10">
-            <div className="flex items-center space-x-3 mb-8">
-              <img 
-                src="https://image2url.com/r2/default/images/1767537268702-ace32085-6e35-4209-afed-54ffee4bfb6b.jpeg" 
-                alt="Vidya" 
-                className="w-12 h-12 rounded-2xl object-cover ring-2 ring-[#84cc16]"
-              />
-              <h1 className="text-2xl font-black uppercase tracking-tighter text-white">Vidya Library</h1>
+            <div className="flex items-center space-x-3 mb-10 translate-y-[-10px]">
+              <div className="p-2 bg-white/5 rounded-2xl backdrop-blur-md border border-white/10 shadow-2xl">
+                <img src="https://image2url.com/r2/default/images/1767537268702-ace32085-6e35-4209-afed-54ffee4bfb6b.jpeg" alt="Vidya" className="w-10 h-10 rounded-xl object-cover ring-1 ring-[#84cc16]/50" />
+              </div>
+              <div>
+                <h1 className="text-xl font-black uppercase tracking-tighter text-white">Vidya Library</h1>
+                <p className="text-[8px] font-black text-[#84cc16] uppercase tracking-[0.4em] ml-0.5 mt-0.5">Systems Node v2.0</p>
+              </div>
             </div>
-            <h2 className="text-4xl font-black leading-tight uppercase tracking-tighter mb-4 italic">
-              {mode.startsWith('admin') ? 'Administrator' : 'Academic'} <span className="text-[#84cc16]">Portal.</span>
-            </h2>
-            <p className="text-slate-400 text-sm font-medium leading-relaxed">
-              {mode.startsWith('admin') 
-                ? 'Central management node. Control library assets, membership registry, and financial logs from a single interface.' 
-                : 'Access premium resources, track your growth, and study in a distraction-free environment.'}
-            </p>
+
+            <div className="space-y-4">
+              <h2 className="text-5xl font-black italic tracking-tighter uppercase leading-[0.9] group-hover:scale-105 transition-transform duration-700">
+                {mode.startsWith('admin') ? 'Admin' : 'Academic'} <br />
+                <span className="text-[#84cc16]">{portalArt.id}.</span>
+              </h2>
+              <p className="text-slate-400 text-xs font-medium leading-relaxed max-w-xs uppercase tracking-widest opacity-80">
+                {mode.startsWith('admin')
+                  ? 'Central control node. Registry management and financial logistics center.'
+                  : 'Premium resources and growth tracking in a focused digital environment.'}
+              </p>
+            </div>
           </div>
-          <div className="pt-8 border-t border-white/10 relative z-10">
-            <p className="text-[10px] font-black text-[#84cc16] uppercase tracking-[0.3em]">Central Registry Node</p>
-            <p className="text-xs text-slate-500 font-bold uppercase">Sitamarhi, Bihar</p>
+
+          <div className="relative z-10 pt-10 border-t border-white/10">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-[10px] font-black uppercase tracking-[0.4em]" style={{ color: portalArt.accent }}>Active Registry</p>
+                <p className="text-[10px] text-slate-500 font-bold uppercase">Sitamarhi, Bihar</p>
+              </div>
+              <div className="px-3 py-1 bg-white/5 border border-white/10 rounded-full">
+                <p className="text-[8px] font-black text-white/60 tracking-widest">{portalArt.title}</p>
+              </div>
+            </div>
           </div>
-          <div className="absolute -right-20 -bottom-20 w-80 h-80 bg-[#84cc16]/5 rounded-full blur-[100px]"></div>
         </div>
 
-        <div className="p-12 flex flex-col justify-center">
+        {/* Right Side: Logic Flow */}
+        <div className="p-14 bg-white dark:bg-slate-900 flex flex-col justify-center transition-colors">
           {mode === 'selection' ? (
-            <div className="space-y-6">
-              <h3 className="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight">Select Portal</h3>
-              <button 
-                onClick={() => setMode('admin-login')}
-                className="w-full group p-6 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-[2rem] text-left hover:border-[#84cc16] transition-all"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-black text-slate-800 dark:text-white uppercase text-sm">Library Administrator</p>
-                    <p className="text-xs text-slate-400 font-medium">Full Registry Control</p>
+            <div className="space-y-8 animate-in fade-in slide-in-from-right-10 duration-500">
+              <div className="space-y-2">
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">Identity Control</h3>
+                <p className="text-[10px] text-slate-400 font-black uppercase tracking-widest">Select Access Level to Proceed</p>
+              </div>
+
+              <div className="space-y-4">
+                <button onClick={() => setMode('admin-login')} className="w-full group p-6 bg-slate-50 dark:bg-slate-800/50 border border-slate-100 dark:border-slate-800 rounded-[2.5rem] text-left hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="font-black text-slate-900 dark:text-white uppercase text-sm tracking-tight">Systems Administrator</p>
+                      <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Master Node Access</p>
+                    </div>
+                    <div className="p-4 bg-white dark:bg-slate-800 rounded-2xl shadow-sm text-slate-400 group-hover:bg-slate-900 group-hover:text-[#84cc16] transition-all">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                    </div>
                   </div>
-                  <div className="w-10 h-10 bg-white dark:bg-slate-800 rounded-xl flex items-center justify-center group-hover:bg-[#84cc16] group-hover:text-white transition-all shadow-sm">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M10 2a5 5 0 00-5 5v2a2 2 0 00-2 2v5a2 2 0 002 2h10a2 2 0 002-2v-5a2 2 0 00-2-2V7a5 5 0 00-5-5zM7 7a3 3 0 116 0v2H7V7z" />
-                    </svg>
+                </button>
+
+                <button onClick={() => setMode('student-login')} className="w-full group p-6 bg-slate-900 dark:bg-slate-800 border border-slate-800 rounded-[2.5rem] text-left hover:shadow-2xl hover:-translate-y-1 transition-all duration-300">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <p className="font-black text-[#84cc16] uppercase text-sm tracking-tight">Academic Member</p>
+                      <p className="text-[10px] text-white/40 font-bold uppercase tracking-widest">Student Portal Access</p>
+                    </div>
+                    <div className="p-4 bg-[#84cc16] rounded-2xl shadow-lg shadow-[#84cc16]/20 text-slate-900">
+                      <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                    </div>
                   </div>
-                </div>
-              </button>
-              <button 
-                onClick={() => setMode('student-login')}
-                className="w-full group p-6 bg-[#84cc16]/5 border border-[#84cc16]/20 rounded-[2rem] text-left hover:border-[#84cc16] transition-all"
-              >
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-black text-[#84cc16] uppercase text-sm">Student Member</p>
-                    <p className="text-xs text-[#84cc16]/60 font-medium">Access your studies & hub</p>
-                  </div>
-                  <div className="w-10 h-10 bg-[#84cc16] rounded-xl flex items-center justify-center text-white transition-all shadow-lg shadow-[#84cc16]/20">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                      <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                </div>
-              </button>
-            </div>
-          ) : mode === 'student-login' ? (
-            <div className="space-y-6">
-              <button onClick={() => {setMode('selection'); setError('');}} className="text-xs font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest flex items-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                </svg>
-                Go Back
-              </button>
-              <h3 className="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight">Student Digital Key</h3>
-              <form onSubmit={handleStudentLogin} className="space-y-4">
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Student UUID</label>
-                  <input required type="text" placeholder="Enter UUID" className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-[#84cc16]/20 transition-all" value={uuid} onChange={e => setUuid(e.target.value)} />
-                </div>
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Secure Password</label>
-                  <input required type="password" placeholder="••••••••" className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-[#84cc16]/20 transition-all" value={password} onChange={e => setPassword(e.target.value)} />
-                </div>
-                {error && <p className="text-rose-500 text-[10px] font-bold uppercase ml-1 animate-pulse">{error}</p>}
-                <button type="submit" className="w-full bg-slate-900 text-[#84cc16] py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-slate-800 transition-all active:scale-95 mt-4"> Authenticate </button>
-              </form>
+                </button>
+              </div>
             </div>
           ) : (
-            <div className="space-y-6">
-              <button onClick={() => {setMode('selection'); setError('');}} className="text-xs font-bold text-slate-400 hover:text-slate-600 uppercase tracking-widest flex items-center mb-4">
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M9.707 16.707a1 1 0 01-1.414 0l-6-6a1 1 0 010-1.414l6-6a1 1 0 011.414 1.414L5.414 9H17a1 1 0 110 2H5.414l4.293 4.293a1 1 0 010 1.414z" clipRule="evenodd" />
-                </svg>
-                Main Gate
+            <div className="space-y-8 animate-in fade-in slide-in-from-right-10 duration-500">
+              <button onClick={() => { setMode('selection'); setError(''); }} className="text-[10px] font-black text-slate-400 hover:text-slate-900 dark:hover:text-white uppercase tracking-[0.2em] flex items-center transition-colors">
+                <svg className="w-3 h-3 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
+                Back to Gateway
               </button>
-              <h3 className="text-xl font-black text-slate-800 dark:text-white uppercase tracking-tight">Admin Vault Entry</h3>
-              <form onSubmit={handleAdminCredentials} className="space-y-4">
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Administrator ID</label>
-                  <input required type="email" placeholder="admin@vidyalibrary.com" className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-[#84cc16]/20 transition-all" value={adminId} onChange={e => setAdminId(e.target.value)} />
+
+              <div className="space-y-2">
+                <h3 className="text-2xl font-black text-slate-900 dark:text-white uppercase tracking-tighter">
+                  {mode === 'admin-login' ? 'Vault Credentials' : 'Member ID Access'}
+                </h3>
+                <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Encrypted Authentication Required</p>
+              </div>
+
+              <form onSubmit={mode === 'admin-login' ? handleAdminCredentials : handleStudentLogin} className="space-y-5">
+                <div className="space-y-4">
+                  <div className="group">
+                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1 transition-colors group-focus-within:text-[#84cc16]">Identification ID</label>
+                    <input
+                      required
+                      type={mode === 'admin-login' ? 'email' : 'text'}
+                      placeholder={mode === 'admin-login' ? 'admin@vidyalibrary.com' : 'S-UUID-001'}
+                      className="w-full p-5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-3xl text-sm font-bold dark:text-white outline-none focus:ring-4 focus:ring-[#84cc16]/10 focus:border-[#84cc16] transition-all"
+                      value={mode === 'admin-login' ? adminId : uuid}
+                      onChange={e => mode === 'admin-login' ? setAdminId(e.target.value) : setUuid(e.target.value)}
+                    />
+                  </div>
+                  <div className="group">
+                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1 transition-colors group-focus-within:text-[#84cc16]">Security Password</label>
+                    <input
+                      required
+                      type="password"
+                      placeholder="••••••••"
+                      className="w-full p-5 bg-slate-50 dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-3xl text-sm font-bold dark:text-white outline-none focus:ring-4 focus:ring-[#84cc16]/10 focus:border-[#84cc16] transition-all"
+                      value={mode === 'admin-login' ? adminPass : password}
+                      onChange={e => mode === 'admin-login' ? setAdminPass(e.target.value) : setPassword(e.target.value)}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Master Password</label>
-                  <input required type="password" placeholder="••••••••" className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-[#84cc16]/20 transition-all" value={adminPass} onChange={e => setAdminPass(e.target.value)} />
-                </div>
-                {error && <p className="text-rose-500 text-[10px] font-bold uppercase ml-1">{error}</p>}
-                <button 
+
+                {error && <div className="p-4 bg-rose-50 dark:bg-rose-900/20 border border-rose-100 dark:border-rose-800 rounded-2xl"><p className="text-rose-600 dark:text-rose-400 text-[10px] font-black uppercase text-center">{error}</p></div>}
+
+                <button
                   disabled={isLoading}
-                  type="submit" 
-                  className="w-full bg-slate-900 text-[#84cc16] py-5 rounded-2xl font-black text-xs uppercase tracking-[0.2em] shadow-xl hover:bg-slate-800 transition-all active:scale-95 mt-4 disabled:opacity-50"
-                > 
-                  {isLoading ? 'Verifying...' : 'Authenticate'} 
+                  type="submit"
+                  className="w-full bg-slate-900 dark:bg-white dark:text-slate-900 text-[#84cc16] py-6 rounded-[2rem] font-black text-xs uppercase tracking-[0.3em] shadow-2xl hover:bg-slate-800 dark:hover:bg-slate-100 transition-all active:scale-95 disabled:opacity-50"
+                >
+                  {isLoading ? 'Verifying...' : 'Authorize Access'}
                 </button>
               </form>
             </div>
           )}
         </div>
       </div>
+
+      {/* Dynamic Background Noise Grain */}
+      <div className="absolute inset-0 opacity-[0.03] pointer-events-none bg-[url('https://grainy-gradients.vercel.app/noise.svg')]"></div>
     </div>
   );
 };

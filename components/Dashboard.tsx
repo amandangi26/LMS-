@@ -160,7 +160,7 @@ const Dashboard: React.FC<DashboardProps> = ({ resources, members, payments, not
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mb-3 opacity-20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
                   </svg>
-                  <p className="text-[10px] font-black uppercase tracking-widest">No transaction data to plot beta.</p>
+                  <p className="text-[10px] font-black uppercase tracking-widest">No transaction data to plot.</p>
                 </div>
               )}
             </div>
@@ -184,7 +184,7 @@ const Dashboard: React.FC<DashboardProps> = ({ resources, members, payments, not
                 </div>
               ))}
               {activeMembers.length === 0 && (
-                <p className="py-10 text-center text-slate-400 text-xs italic uppercase">No students in registry node beta.</p>
+                <p className="py-10 text-center text-slate-400 text-xs italic uppercase">No students in registry node.</p>
               )}
             </div>
           </div>
@@ -251,8 +251,8 @@ const Dashboard: React.FC<DashboardProps> = ({ resources, members, payments, not
               <div
                 key={notice.id}
                 className={`relative p-6 rounded-[2rem] border transition-all group animate-in fade-in slide-in-from-right-4 duration-500 delay-[${idx * 100}ms] ${notice.priority === 'High'
-                    ? 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-100 dark:border-rose-900/30'
-                    : 'bg-white dark:bg-slate-900/40 border-slate-100 dark:border-slate-800 shadow-sm'
+                  ? 'bg-rose-50/50 dark:bg-rose-950/20 border-rose-100 dark:border-rose-900/30'
+                  : 'bg-white dark:bg-slate-900/40 border-slate-100 dark:border-slate-800 shadow-sm'
                   }`}
               >
                 {userRole === 'admin' && (

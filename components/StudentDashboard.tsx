@@ -43,7 +43,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ student, notices, a
       {/* Stats Grid */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm flex items-center space-x-5">
-          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lg ${isCheckedIn ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-2xl shadow-lg ${isCheckedIn ? 'bg-[#84cc16]/10 text-[#84cc16]' : 'bg-slate-100 text-slate-400'}`}>
             {isCheckedIn ? '✅' : '🕒'}
           </div>
           <div>
@@ -55,7 +55,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ student, notices, a
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm flex items-center space-x-5">
-          <div className="w-14 h-14 bg-indigo-100 text-indigo-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg">
+          <div className="w-14 h-14 bg-[#84cc16]/10 text-[#84cc16] rounded-2xl flex items-center justify-center text-2xl shadow-lg">
             📈
           </div>
           <div>
@@ -67,7 +67,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ student, notices, a
         </div>
 
         <div className="bg-white dark:bg-slate-800 p-8 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-sm flex items-center space-x-5">
-          <div className="w-14 h-14 bg-rose-100 text-rose-600 rounded-2xl flex items-center justify-center text-2xl shadow-lg">
+          <div className="w-14 h-14 bg-[#84cc16]/10 text-[#84cc16] rounded-2xl flex items-center justify-center text-2xl shadow-lg">
             📅
           </div>
           <div>
@@ -110,17 +110,17 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ student, notices, a
           <div className="bg-white dark:bg-slate-800 p-10 rounded-[3rem] border border-slate-100 dark:border-slate-700 shadow-sm">
             <div className="flex items-center justify-between mb-8">
               <h3 className="text-lg font-black text-slate-800 dark:text-white uppercase tracking-tight flex items-center">
-                <span className="w-2 h-2 bg-indigo-500 rounded-full mr-3"></span>
+                <span className="w-2 h-2 bg-[#84cc16] rounded-full mr-3"></span>
                 Modification History
               </h3>
-              <button 
+              <button
                 onClick={() => onViewChange('replacements')}
-                className="text-[10px] font-black text-indigo-500 uppercase tracking-widest hover:underline"
+                className="text-[10px] font-black text-[#84cc16] uppercase tracking-widest hover:underline"
               >
                 Request New Change
               </button>
             </div>
-            
+
             <div className="space-y-4">
               {studentRequests.length > 0 ? studentRequests.slice().reverse().map(req => (
                 <div key={req.id} className="p-6 bg-slate-50 dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-700/50 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -131,22 +131,21 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ student, notices, a
                         {req.requestedSeat && req.requestedBatch ? ' & ' : ''}
                         {req.requestedBatch ? `Batch Shift` : ''}
                       </p>
-                      <span className={`text-[8px] font-black px-2 py-0.5 rounded-md uppercase ${
-                        req.status === 'Approved' ? 'bg-emerald-100 text-emerald-600' :
-                        req.status === 'Rejected' ? 'bg-rose-100 text-rose-600' :
-                        'bg-amber-100 text-amber-600'
-                      }`}>
+                      <span className={`text-[8px] font-black px-2 py-0.5 rounded-md uppercase ${req.status === 'Approved' ? 'bg-[#84cc16]/20 text-[#84cc16]' :
+                          req.status === 'Rejected' ? 'bg-rose-100 text-rose-600' :
+                            'bg-slate-100 text-slate-600'
+                        }`}>
                         {req.status}
                       </span>
                     </div>
                     <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{req.date} • {req.requestedBatch || 'Same Shift'}</p>
                   </div>
                   <div className="text-left sm:text-right max-w-xs">
-                     <p className="text-[10px] text-slate-500 dark:text-slate-400 italic line-clamp-1">"{req.reason}"</p>
+                    <p className="text-[10px] text-slate-500 dark:text-slate-400 italic line-clamp-1">"{req.reason}"</p>
                   </div>
                 </div>
               )) : (
-                <div className="py-12 text-center text-slate-400 text-xs italic">No modification requests on record beta.</div>
+                <div className="py-12 text-center text-slate-400 text-xs italic">No modification requests on record.</div>
               )}
             </div>
           </div>
@@ -164,7 +163,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ student, notices, a
                 </div>
                 <div className="px-3 py-1 bg-[#84cc16] text-white rounded-lg text-[9px] font-black">ACTIVE</div>
               </div>
-              
+
               <div className="space-y-4">
                 <div className="flex justify-between text-xs font-bold uppercase tracking-tight">
                   <span className="text-slate-400">Monthly Fee</span>
@@ -186,7 +185,7 @@ const StudentDashboard: React.FC<StudentDashboardProps> = ({ student, notices, a
             </div>
           </div>
 
-          <div 
+          <div
             onClick={() => onViewChange('ai-assistant')}
             className="bg-[#84cc16] p-8 rounded-[3rem] shadow-xl shadow-[#84cc16]/20 relative overflow-hidden group cursor-pointer transition-all hover:scale-[1.02] active:scale-95"
           >

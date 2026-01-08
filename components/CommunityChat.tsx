@@ -36,6 +36,12 @@ const CommunityChat: React.FC<ChatProps> = ({ messages, members, userRole, curre
         }
     };
 
+    useEffect(() => {
+        if (userRole === 'student' && !selectedContact) {
+            setSelectedContact({ id: 'admin', name: 'HEAD LIBRARIAN', role: 'admin' });
+        }
+    }, [userRole, selectedContact]);
+
     const currentUserId = userRole === 'admin' ? 'admin' : currentStudent?.id;
 
     // Filter messages for current conversation
@@ -44,10 +50,9 @@ const CommunityChat: React.FC<ChatProps> = ({ messages, members, userRole, curre
         (msg.sender_id === selectedContact?.id && msg.receiver_id === currentUserId)
     );
 
-    const contacts = [
-        ...(userRole === 'student' ? [{ id: 'admin', name: 'HEAD LIBRARIAN', role: 'admin' }] : []),
-        ...members.filter(m => m.id !== currentUserId && !m.isArchived).map(m => ({ id: m.id, name: m.name, role: 'student' }))
-    ];
+    const contacts = userRole === 'admin'
+        ? members.filter(m => !m.isArchived).map(m => ({ id: m.id, name: m.name, role: 'student' }))
+        : [{ id: 'admin', name: 'HEAD LIBRARIAN', role: 'admin' }];
 
     return (
         <div className="flex bg-white dark:bg-slate-800 rounded-[2.5rem] border border-slate-100 dark:border-slate-700 shadow-2xl overflow-hidden h-[calc(100vh-12rem)] min-h-[600px] animate-in fade-in zoom-in duration-500">
@@ -63,13 +68,13 @@ const CommunityChat: React.FC<ChatProps> = ({ messages, members, userRole, curre
                             key={contact.id}
                             onClick={() => setSelectedContact(contact)}
                             className={`w-full p-4 rounded-3xl flex items-center space-x-4 transition-all ${selectedContact?.id === contact.id
-                                    ? 'bg-slate-900 dark:bg-white text-white dark:text-black shadow-xl -translate-y-1'
-                                    : 'hover:bg-slate-100 dark:hover:bg-slate-900/50 text-slate-600 dark:text-slate-400'
+                                ? 'bg-slate-900 dark:bg-white text-white dark:text-black shadow-xl -translate-y-1'
+                                : 'hover:bg-slate-100 dark:hover:bg-slate-900/50 text-slate-600 dark:text-slate-400'
                                 }`}
                         >
                             <div className={`w-10 h-10 rounded-2xl flex items-center justify-center font-black text-xs ${selectedContact?.id === contact.id
-                                    ? 'bg-[#84cc16] text-slate-900'
-                                    : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500'
+                                ? 'bg-[#84cc16] text-slate-900'
+                                : 'bg-slate-200 dark:bg-slate-800 text-slate-400 dark:text-slate-500'
                                 }`}>
                                 {contact.name.substring(0, 2).toUpperCase()}
                             </div>
@@ -120,8 +125,8 @@ const CommunityChat: React.FC<ChatProps> = ({ messages, members, userRole, curre
                                             </span>
                                         </div>
                                         <div className={`max-w-[80%] p-4 rounded-3xl text-sm font-medium shadow-sm transition-all hover:shadow-md ${isOwn
-                                                ? 'bg-slate-900 dark:bg-white text-white dark:text-black rounded-tr-none'
-                                                : 'bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-800 rounded-tl-none'
+                                            ? 'bg-slate-900 dark:bg-white text-white dark:text-black rounded-tr-none'
+                                            : 'bg-slate-50 dark:bg-slate-900/50 text-slate-800 dark:text-slate-200 border border-slate-100 dark:border-slate-800 rounded-tl-none'
                                             }`}>
                                             {msg.content}
                                         </div>

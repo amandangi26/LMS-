@@ -42,7 +42,9 @@ const mapMember = (m: any): Member => ({
     date: p.date,
     score: p.score,
     subject: p.subject
-  })) || []
+  })) || [],
+  idProofType: m.id_proof_type,
+  idProofImage: m.id_proof_image
 });
 
 export const dbService = {
@@ -74,6 +76,8 @@ export const dbService = {
       membership_status: member.membershipStatus,
       email: member.email,
       password: member.password,
+      id_proof_type: member.idProofType,
+      id_proof_image: member.idProofImage,
     };
 
     // Use 'status' column as seen in Supabase screenshot

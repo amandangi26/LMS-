@@ -36,6 +36,8 @@ export interface Member {
   password?: string;
   isArchived?: boolean;
   progress?: ProgressEntry[];
+  idProofType?: string;
+  idProofImage?: string;
 }
 
 export interface ReplacementRequest {
