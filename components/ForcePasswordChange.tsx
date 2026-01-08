@@ -5,10 +5,11 @@ import { Icons } from '../constants';
 
 interface ForcePasswordChangeProps {
   student: Member;
-  onUpdate: (newPassword: string) => Promise<void>;
+  onUpdate: (newPassword: string, newEmail: string) => Promise<void>;
 }
 
 const ForcePasswordChange: React.FC<ForcePasswordChangeProps> = ({ student, onUpdate }) => {
+  const [newEmail, setNewEmail] = useState(student.email);
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [error, setError] = useState('');
@@ -28,14 +29,14 @@ const ForcePasswordChange: React.FC<ForcePasswordChangeProps> = ({ student, onUp
       return;
     }
 
-    if (newPassword !== confirmPassword) {
-      setError('Passwords do not match.');
+    if (!newEmail.includes('@') || !newEmail.includes('.')) {
+      setError('Please enter a valid real email address.');
       return;
     }
 
     setLoading(true);
     try {
-      await onUpdate(newPassword);
+      await onUpdate(newPassword, newEmail);
     } catch (err: any) {
       setError(err.message || 'Failed to update password. Please try again.');
     } finally {
@@ -64,12 +65,24 @@ const ForcePasswordChange: React.FC<ForcePasswordChangeProps> = ({ student, onUp
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium leading-relaxed">
               Namaste <span className="text-slate-900 dark:text-white font-bold">{student.name}</span>, safety is our priority.
             </p>
-            <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest bg-slate-50 dark:bg-slate-900/50 py-2 rounded-lg">
-              Please change your default password
+            <p className="text-[10px] text-[#84cc16] dark:text-[#84cc16] font-bold uppercase tracking-widest bg-[#84cc16]/5 py-2 rounded-lg">
+              Update your profile to enter system hub
             </p>
           </div>
 
           <div className="space-y-4">
+            <div className="space-y-1.5">
+              <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Real Email Address</label>
+              <input
+                required
+                type="email"
+                placeholder="you@email.com"
+                className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-100 dark:border-slate-700 rounded-2xl text-sm font-bold dark:text-white outline-none focus:ring-2 focus:ring-[#84cc16]/20 transition-all"
+                value={newEmail}
+                onChange={e => setNewEmail(e.target.value)}
+              />
+              <p className="text-[9px] text-slate-400 font-medium ml-1">This will be your new Login ID</p>
+            </div>
             <div className="space-y-1.5">
               <label className="block text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">New Secure Password</label>
               <input

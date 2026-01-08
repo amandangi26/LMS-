@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { View, Resource, Member, Payment, AccessLog, AttendanceLog, Notice, UserRole, ReplacementRequest } from './types';
+import { View, Resource, Member, Payment, AccessLog, AttendanceLog, Notice, UserRole, ReplacementRequest, ChatMessage } from './types';
 import Sidebar from './components/Sidebar';
 import Dashboard from './components/Dashboard';
 import StudentDashboard from './components/StudentDashboard';
@@ -134,9 +134,9 @@ const App: React.FC = () => {
     }
   }, [userRole, currentStudent, currentView]);
 
-  const handleUpdatePassword = async (newPassword: string) => {
+  const handleUpdateAccount = async (newPassword: string, newEmail: string) => {
     if (!currentStudent) return;
-    const updatedMember = { ...currentStudent, password: newPassword };
+    const updatedMember = { ...currentStudent, password: newPassword, email: newEmail };
     await dbService.upsertMember(updatedMember);
     setCurrentStudent(updatedMember);
     setMembers(prev => prev.map(m => m.id === updatedMember.id ? updatedMember : m));
@@ -366,7 +366,7 @@ const App: React.FC = () => {
       {needsPasswordChange && currentStudent && (
         <ForcePasswordChange
           student={currentStudent}
-          onUpdate={handleUpdatePassword}
+          onUpdate={handleUpdateAccount}
         />
       )}
     </div>
