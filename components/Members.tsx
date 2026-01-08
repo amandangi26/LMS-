@@ -41,63 +41,6 @@ const Members: React.FC<MembersProps> = ({ members, payments, onAddMember, onDel
     idProofType: '', idProofImage: '',
   });
 
-  const [registrationTab, setRegistrationTab] = useState<'basic' | 'id-proof'>('basic');
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [cameraActive, setCameraActive] = useState(false);
-  const [stream, setStream] = useState<MediaStream | null>(null);
-
-  useEffect(() => {
-    if (cameraActive && stream && videoRef.current) {
-      videoRef.current.srcObject = stream;
-    }
-  }, [cameraActive, stream]);
-
-  const startCamera = async () => {
-    try {
-      const s = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } });
-      setStream(s);
-      setCameraActive(true);
-    } catch (err) {
-      alert("Camera access denied or unavailable.");
-    }
-  };
-
-  const stopCamera = () => {
-    if (stream) {
-      stream.getTracks().forEach(track => track.stop());
-      setStream(null);
-    }
-    if (videoRef.current) {
-      videoRef.current.srcObject = null;
-    }
-    setCameraActive(false);
-  };
-
-  const capturePhoto = () => {
-    if (videoRef.current) {
-      const canvas = document.createElement('canvas');
-      canvas.width = videoRef.current.videoWidth;
-      canvas.height = videoRef.current.videoHeight;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        ctx.drawImage(videoRef.current, 0, 0);
-        const imageData = canvas.toDataURL('image/jpeg', 0.8);
-        setNewMember({ ...newMember, idProofImage: imageData });
-        stopCamera();
-      }
-    }
-  };
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setNewMember({ ...newMember, idProofImage: reader.result as string });
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const getEffectiveDues = (member: Member) => {
     const registryDues = parseDues(member.dues);
@@ -143,8 +86,6 @@ const Members: React.FC<MembersProps> = ({ members, payments, onAddMember, onDel
       joinDate: new Date().toISOString().split('T')[0], membershipStatus: 'Basic', email: '', password: '',
       idProofType: '', idProofImage: '',
     });
-    setRegistrationTab('basic');
-    stopCamera();
   };
 
   return (
@@ -235,12 +176,6 @@ const Members: React.FC<MembersProps> = ({ members, payments, onAddMember, onDel
                   <p className="text-sm font-bold text-[#84cc16] font-mono break-all bg-slate-50 dark:bg-slate-900 p-4 rounded-xl">{trackingMember.id}</p>
                 </div>
 
-                {trackingMember.idProofImage && (
-                  <div className="bg-slate-50 dark:bg-slate-900 p-4 rounded-3xl border border-slate-100 dark:border-slate-700">
-                    <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2">ID Proof: {trackingMember.idProofType}</h5>
-                    <img src={trackingMember.idProofImage} alt="ID Proof" className="w-full h-auto rounded-2xl border border-slate-200 dark:border-slate-700 shadow-sm" />
-                  </div>
-                )}
 
                 <div className="bg-slate-50 dark:bg-slate-900 p-6 rounded-3xl border border-slate-100 dark:border-slate-700">
                   <h5 className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-4">Add Mock Result</h5>
@@ -282,157 +217,57 @@ const Members: React.FC<MembersProps> = ({ members, payments, onAddMember, onDel
                 <h3 className="text-2xl font-black uppercase text-slate-800 dark:text-white tracking-tighter">Student Registration</h3>
                 <p className="text-[10px] text-slate-400 dark:text-slate-500 font-bold uppercase tracking-widest mt-1">Assign Credentials & Registry Details</p>
               </div>
-              <button onClick={() => { setShowAddForm(false); stopCamera(); }} className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl hover:rotate-90 transition-all">
+              <button onClick={() => setShowAddForm(false)} className="p-3 bg-slate-50 dark:bg-slate-900 rounded-xl hover:rotate-90 transition-all">
                 <Icons.Plus className="w-6 h-6 rotate-45 text-slate-400 dark:text-slate-600" />
               </button>
             </div>
 
-            <div className="flex space-x-4 mb-8">
-              <button
-                type="button"
-                onClick={() => setRegistrationTab('basic')}
-                className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${registrationTab === 'basic' ? 'bg-[#84cc16] text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-900 text-slate-400'}`}
-              >
-                1. Basic Details
-              </button>
-              <button
-                type="button"
-                onClick={() => setRegistrationTab('id-proof')}
-                className={`px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all ${registrationTab === 'id-proof' ? 'bg-[#84cc16] text-white shadow-lg' : 'bg-slate-100 dark:bg-slate-900 text-slate-400'}`}
-              >
-                2. ID Proof Capture
-              </button>
-            </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
-              {registrationTab === 'basic' ? (
-                <>
-                  <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-100 dark:border-slate-700/50 space-y-4">
-                    <label className="text-[10px] font-black text-[#84cc16] uppercase tracking-widest block">Step 1: Digital Access Security</label>
-                    <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
-                      <div>
-                        <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Set Access Password</label>
-                        <input
-                          required
-                          type="text"
-                          placeholder="SET PASSWORD (MIN 6 CHARS)"
-                          className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-[#84cc16]/20"
-                          value={newMember.password}
-                          onChange={e => setNewMember({ ...newMember, password: e.target.value })}
-                        />
-                        <p className="text-[9px] text-slate-400 mt-2 ml-1 italic font-medium">Student will use their auto-generated UUID and this password to login.</p>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Personal Details</label>
-                      <input required placeholder="STUDENT FULL NAME" className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none" value={newMember.name} onChange={e => setNewMember({ ...newMember, name: e.target.value.toUpperCase() })} />
-                      <input required placeholder="FATHER'S NAME" className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none" value={newMember.fatherName} onChange={e => setNewMember({ ...newMember, fatherName: e.target.value.toUpperCase() })} />
-                      <input required placeholder="CONTACT PHONE" className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none" value={newMember.phone} onChange={e => setNewMember({ ...newMember, phone: e.target.value })} />
-                      <input required placeholder="ADDRESS" className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none" value={newMember.address} onChange={e => setNewMember({ ...newMember, address: e.target.value.toUpperCase() })} />
-                    </div>
-
-                    <div className="space-y-4">
-                      <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Library Matrix</label>
-                      <select onChange={handlePlanSelect} className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none">
-                        <option value="">Select Shift Plan...</option>
-                        {OFFICIAL_PLANS.map(p => <option key={p.label} value={p.label}>{p.label}</option>)}
-                      </select>
-                      <div className="grid grid-cols-2 gap-4">
-                        <input required placeholder="SEAT NO." className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none" value={newMember.seatNo} onChange={e => setNewMember({ ...newMember, seatNo: e.target.value })} />
-                        <input required placeholder="MONTHLY FEE" className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none" value={newMember.fee} onChange={e => setNewMember({ ...newMember, fee: e.target.value })} />
-                      </div>
-                      <input placeholder="INITIAL DUES" className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none" value={newMember.dues} onChange={e => setNewMember({ ...newMember, dues: e.target.value })} />
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <div className="space-y-6 animate-in slide-in-from-right-4 duration-300">
-                  <div className="bg-slate-50 dark:bg-slate-900/50 p-8 rounded-[2rem] border border-slate-100 dark:border-slate-700/50">
-                    <h4 className="text-[10px] font-black text-[#84cc16] uppercase tracking-widest mb-6">Security Verification (ID Proof)</h4>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                      <div className="space-y-4">
-                        <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest ml-1">Select Document Type</label>
-                        <select
-                          required={registrationTab === 'id-proof'}
-                          className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none"
-                          value={newMember.idProofType}
-                          onChange={e => setNewMember({ ...newMember, idProofType: e.target.value })}
-                        >
-                          <option value="">SELECT ID TYPE...</option>
-                          <option value="AADHAR CARD">AADHAR CARD</option>
-                          <option value="VOTER ID">VOTER ID</option>
-                          <option value="PAN CARD">PAN CARD</option>
-                          <option value="STUDENT ID">STUDENT ID</option>
-                          <option value="DRIVING LICENSE">DRIVING LICENSE</option>
-                        </select>
-
-                        <div className="mt-8">
-                          <p className="text-[9px] text-slate-400 font-medium mb-4 italic leading-relaxed">
-                            Please capture a clear image of the original document. Ensure all text is legible and the photo is not blurry.
-                          </p>
-                          {newMember.idProofImage ? (
-                            <div className="relative group">
-                              <img src={newMember.idProofImage} alt="Captured ID" className="w-full h-48 object-cover rounded-3xl border-2 border-[#84cc16]" />
-                              <button
-                                type="button"
-                                onClick={() => { setNewMember({ ...newMember, idProofImage: '' }); startCamera(); }}
-                                className="absolute inset-0 bg-slate-900/60 opacity-0 group-hover:opacity-100 transition-opacity rounded-3xl flex items-center justify-center text-white font-black text-[10px] uppercase tracking-widest"
-                              >
-                                Retake Photo
-                              </button>
-                            </div>
-                          ) : (
-                            <div className="aspect-video bg-slate-200 dark:bg-slate-800 rounded-3xl overflow-hidden relative border-2 border-dashed border-slate-300 dark:border-slate-700">
-                              {cameraActive ? (
-                                <>
-                                  <video ref={videoRef} autoPlay playsInline className="w-full h-full object-cover" />
-                                  <button type="button" onClick={capturePhoto} className="absolute bottom-4 left-1/2 -translate-x-1/2 bg-white text-slate-900 px-6 py-2 rounded-full font-black text-[10px] uppercase shadow-xl hover:scale-105 transition-all">Capture</button>
-                                </>
-                              ) : (
-                                <div className="absolute inset-0 flex flex-col items-center justify-center space-y-4 p-6">
-                                  <Icons.AI className="w-12 h-12 text-slate-300" />
-                                  <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-                                    <button type="button" onClick={startCamera} className="bg-indigo-600 text-white px-8 py-3 rounded-2xl font-black text-[10px] uppercase shadow-lg shadow-indigo-600/20 active:scale-95 transition-all flex items-center justify-center space-x-2">
-                                      <Icons.AI className="w-4 h-4" />
-                                      <span>Start Camera</span>
-                                    </button>
-                                    <div className="relative">
-                                      <input
-                                        type="file"
-                                        accept="image/*"
-                                        className="absolute inset-0 opacity-0 cursor-pointer"
-                                        onChange={handleFileUpload}
-                                      />
-                                      <button type="button" className="w-full bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-8 py-3 rounded-2xl font-black text-[10px] uppercase active:scale-95 transition-all flex items-center justify-center space-x-2">
-                                        <Icons.Plus className="w-4 h-4" />
-                                        <span>Upload ID</span>
-                                      </button>
-                                    </div>
-                                  </div>
-                                </div>
-                              )}
-                            </div>
-                          )}
-                        </div>
-                      </div>
-                      <div className="hidden md:flex items-center justify-center opacity-20">
-                        <Icons.AI className="w-48 h-48" />
-                      </div>
-                    </div>
+              <div className="bg-slate-50 dark:bg-slate-900/50 p-6 rounded-3xl border border-slate-100 dark:border-slate-700/50 space-y-4">
+                <label className="text-[10px] font-black text-[#84cc16] uppercase tracking-widest block">Digital Access Security</label>
+                <div className="grid grid-cols-1 md:grid-cols-1 gap-4">
+                  <div>
+                    <label className="block text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1.5 ml-1">Set Access Password</label>
+                    <input
+                      required
+                      type="text"
+                      placeholder="SET PASSWORD (MIN 6 CHARS)"
+                      className="w-full p-4 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none focus:ring-2 focus:ring-[#84cc16]/20"
+                      value={newMember.password}
+                      onChange={e => setNewMember({ ...newMember, password: e.target.value })}
+                    />
+                    <p className="text-[9px] text-slate-400 mt-2 ml-1 italic font-medium">Student will use their auto-generated UUID and this password to login.</p>
                   </div>
                 </div>
-              )}
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Personal Details</label>
+                  <input required placeholder="STUDENT FULL NAME" className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none" value={newMember.name} onChange={e => setNewMember({ ...newMember, name: e.target.value.toUpperCase() })} />
+                  <input required placeholder="FATHER'S NAME" className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none" value={newMember.fatherName} onChange={e => setNewMember({ ...newMember, fatherName: e.target.value.toUpperCase() })} />
+                  <input required placeholder="CONTACT PHONE" className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none" value={newMember.phone} onChange={e => setNewMember({ ...newMember, phone: e.target.value })} />
+                  <input required placeholder="ADDRESS" className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none" value={newMember.address} onChange={e => setNewMember({ ...newMember, address: e.target.value.toUpperCase() })} />
+                </div>
+
+                <div className="space-y-4">
+                  <label className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest ml-1">Library Matrix</label>
+                  <select onChange={handlePlanSelect} className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none">
+                    <option value="">Select Shift Plan...</option>
+                    {OFFICIAL_PLANS.map(p => <option key={p.label} value={p.label}>{p.label}</option>)}
+                  </select>
+                  <div className="grid grid-cols-2 gap-4">
+                    <input required placeholder="SEAT NO." className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none" value={newMember.seatNo} onChange={e => setNewMember({ ...newMember, seatNo: e.target.value })} />
+                    <input required placeholder="MONTHLY FEE" className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none" value={newMember.fee} onChange={e => setNewMember({ ...newMember, fee: e.target.value })} />
+                  </div>
+                  <input placeholder="INITIAL DUES" className="w-full p-4 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-2xl text-xs font-bold dark:text-white outline-none" value={newMember.dues} onChange={e => setNewMember({ ...newMember, dues: e.target.value })} />
+                </div>
+              </div>
 
               <div className="pt-8 border-t border-slate-100 dark:border-slate-700 flex space-x-4">
-                <button type="button" onClick={() => { setShowAddForm(false); stopCamera(); }} className="flex-1 py-5 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Discard</button>
-                {registrationTab === 'basic' ? (
-                  <button type="button" onClick={() => setRegistrationTab('id-proof')} className="flex-[2] bg-slate-900 dark:bg-slate-700 text-[#84cc16] py-5 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] shadow-xl active:scale-95 transition-all">Next: ID Proof</button>
-                ) : (
-                  <button type="submit" className="flex-[2] bg-[#84cc16] text-white py-5 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] shadow-xl active:scale-95 transition-all">Submit Registry</button>
-                )}
+                <button type="button" onClick={() => setShowAddForm(false)} className="flex-1 py-5 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Discard</button>
+                <button type="submit" className="flex-[2] bg-[#84cc16] text-white py-5 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] shadow-xl active:scale-95 transition-all">Submit Registry</button>
               </div>
             </form>
           </div>
