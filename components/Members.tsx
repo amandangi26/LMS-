@@ -6,9 +6,10 @@ import { Icons } from '../constants';
 interface MembersProps {
   members: Member[];
   payments: Payment[];
-  onAddMember: (member: Omit<Member, 'id'>) => void;
+  onAddMember: (member: Omit<Member, 'id'>) => Promise<void>;
   onDeleteMember: (id: string) => void;
   onUpdateMember: (member: Member) => void;
+  showNotification: (type: 'success' | 'error' | 'info', message: string, subMessage?: string) => void;
 }
 
 const OFFICIAL_PLANS = [
@@ -29,10 +30,11 @@ const parseDues = (duesStr: string): number => {
   return parseFloat(cleanStr) || 0;
 };
 
-const Members: React.FC<MembersProps> = ({ members, payments, onAddMember, onDeleteMember, onUpdateMember }) => {
+const Members: React.FC<MembersProps> = ({ members, payments, onAddMember, onDeleteMember, onUpdateMember, showNotification }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddForm, setShowAddForm] = useState(false);
   const [trackingMember, setTrackingMember] = useState<Member | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [newScore, setNewScore] = useState({ subject: '', score: '' });
 
   const [newMember, setNewMember] = useState<Omit<Member, 'id'>>({
@@ -76,16 +78,27 @@ const Members: React.FC<MembersProps> = ({ members, payments, onAddMember, onDel
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const finalEmail = newMember.email || `${newMember.name.toLowerCase().replace(/\s+/g, '.')}@vidya.com`;
-    onAddMember({ ...newMember, email: finalEmail });
-    setShowAddForm(false);
-    setNewMember({
-      name: '', fatherName: '', address: '', phone: '', seatNo: '', batchTime: '', fee: '', dues: '',
-      joinDate: new Date().toISOString().split('T')[0], membershipStatus: 'Basic', email: '', password: '',
-      idProofType: '', idProofImage: '',
-    });
+    if (isSubmitting) return;
+
+    try {
+      setIsSubmitting(true);
+      const finalEmail = newMember.email || `${newMember.name.toLowerCase().replace(/\s+/g, '.')}@vidya.com`;
+      await onAddMember({ ...newMember, email: finalEmail });
+
+      setShowAddForm(false);
+      setNewMember({
+        name: '', fatherName: '', address: '', phone: '', seatNo: '', batchTime: '', fee: '', dues: '',
+        joinDate: new Date().toISOString().split('T')[0], membershipStatus: 'Basic', email: '', password: '',
+        idProofType: '', idProofImage: '',
+      });
+    } catch (error: any) {
+      console.error("Submission error:", error);
+      showNotification('error', 'Admission Failed', error.message || 'Check for duplicate entries (e.g. Seat No)');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -267,7 +280,9 @@ const Members: React.FC<MembersProps> = ({ members, payments, onAddMember, onDel
 
               <div className="pt-8 border-t border-slate-100 dark:border-slate-700 flex space-x-4">
                 <button type="button" onClick={() => setShowAddForm(false)} className="flex-1 py-5 text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-widest">Discard</button>
-                <button type="submit" className="flex-[2] bg-[#84cc16] text-white py-5 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] shadow-xl active:scale-95 transition-all">Submit Registry</button>
+                <button type="submit" disabled={isSubmitting} className="flex-[2] bg-[#84cc16] disabled:bg-[#84cc16]/50 text-white py-5 rounded-[1.5rem] font-black text-xs uppercase tracking-[0.2em] shadow-xl active:scale-95 transition-all">
+                  {isSubmitting ? 'Registering...' : 'Submit Registry'}
+                </button>
               </div>
             </form>
           </div>

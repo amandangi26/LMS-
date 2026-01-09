@@ -90,9 +90,7 @@ export const dbService = {
       join_date: member.joinDate,
       membership_status: member.membershipStatus,
       email: member.email,
-      password: member.password,
-      id_proof_type: member.idProofType,
-      id_proof_image: member.idProofImage,
+      password: member.password
     };
 
     // Use 'status' column as seen in Supabase screenshot

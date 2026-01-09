@@ -17,6 +17,7 @@ import Archive from './components/Archive';
 import CommunityChat from './components/CommunityChat';
 import Login from './components/Login';
 import ForcePasswordChange from './components/ForcePasswordChange';
+import Notification, { NotificationType } from './components/Notification';
 import { dbService, isDbConfigured, generateUUID } from './services/dbService';
 
 const SEED_RESOURCES: Resource[] = [
@@ -60,6 +61,33 @@ const App: React.FC = () => {
     const saved = localStorage.getItem('vidya_replacements');
     return saved ? JSON.parse(saved) : [];
   });
+
+  // Notification State
+  const [notification, setNotification] = useState<{ type: NotificationType; message: string; subMessage?: string; isVisible: boolean }>({
+    type: 'success', message: '', isVisible: false
+  });
+
+  const showNotification = (type: NotificationType, message: string, subMessage?: string) => {
+    setNotification({ type, message, subMessage, isVisible: true });
+  };
+
+  const closeNotification = () => {
+    setNotification(prev => ({ ...prev, isVisible: false }));
+  };
+
+  const checkConnection = async () => {
+    try {
+      showNotification('info', 'Verifying Connection...', 'Pinging Cloud Database Node...');
+      const start = Date.now();
+      await dbService.getMembers(); // Simple read to check connection
+      const end = Date.now();
+      setDbStatus('connected');
+      showNotification('success', 'Connection Secure', `Latency: ${end - start}ms`);
+    } catch (error: any) {
+      setDbStatus('error');
+      showNotification('error', 'Connection Failed', error.message || 'Unknown network error');
+    }
+  };
 
   useEffect(() => {
     localStorage.setItem('vidya_replacements', JSON.stringify(replacementRequests));
@@ -299,7 +327,25 @@ const App: React.FC = () => {
       case 'catalog':
         return <Catalog resources={resources} accessLogs={accessLogs} onAdd={() => { }} onRemove={() => { }} onAccess={() => { }} />;
       case 'members':
-        return <Members members={members.filter(m => !m.isArchived)} payments={payments} onAddMember={(m) => dbService.upsertMember(m).then(nm => setMembers(prev => [...prev, nm]))} onDeleteMember={handleArchiveMember} onUpdateMember={(m) => dbService.upsertMember(m).then(() => setMembers(prev => prev.map(old => old.id === m.id ? m : old)))} />;
+        return <Members
+          members={members.filter(m => !m.isArchived)}
+          payments={payments}
+          onAddMember={async (m) => {
+            try {
+              const nm = await dbService.upsertMember(m);
+              if (nm) {
+                setMembers(prev => [...prev, nm]);
+                showNotification('success', 'Student Admitted', `Welcome, ${m.name}!`);
+              }
+            } catch (err: any) {
+              console.error("Member creation error", err);
+              throw err;
+            }
+          }}
+          onDeleteMember={handleArchiveMember}
+          onUpdateMember={(m) => dbService.upsertMember(m).then(() => setMembers(prev => prev.map(old => old.id === m.id ? m : old)))}
+          showNotification={showNotification}
+        />;
       case 'archive':
         return <Archive members={members} onRestore={handleRestoreMember} />;
       case 'progress':
